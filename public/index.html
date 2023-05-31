@@ -6,40 +6,59 @@
 </head>
 <body>
     <div id="app"></div>
-         
+     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel">
-      
-    function UserData() {
-      const [user, setUser] = React.useState({name:"Tom", age: 36});
        
-      function handleNameChange(event) { 
-        setUser({...user, name: event.target.value});   
-     }
+    const root = ReactDOM.createRoot(
+      document.getElementById("app")
+    );
+    function UserForm() {
+      const [name, setName] = React.useState("Tom");
+      const nameRef = React.useRef(name);
        
-      function handleAgeChange(event) {   
-        setUser({...user, age: event.target.value});   
-     }
+      React.useEffect(() => { 
+       
+        nameRef.current = name;
+      }, [name]);
+       
+      React.useEffect(() => {    
+         // извлекаем данные из localStorage
+         const userName = localStorage.getItem("userName");
+         // если в localStorage есть такой объект
+         if(userName!==null) {
+            setName(userName);
+            console.log("Got!");
+        }
+         
+        // сохраняем данные в localStorage
+        return()=>{
+            console.log(nameRef.current);
+            localStorage.setItem("userName", nameRef.current); 
+            console.log("Saved!");
+        }
+      },
+      []); // эффект срабатывает только один раз - при самом первом рендеринге
+        
+      const changeName = (event) => setName(event.target.value);
+      const unmount =() => root.unmount();
+       
       return (
         <div>
-          <h3>Имя: {user.name}</h3>
-          <h3>Возраст: {user.age}</h3>
-           
+          <h3>Имя: {name}</h3>
+            
           <div>
-            <p>Имя: <input type="text" value={user.name} onChange={handleNameChange} /></p>
-            <p>Возраст: <input type="number" min="0" max="110" value={user.age} onChange={handleAgeChange} /></p>
+            <p>Имя: <input type="text" value={name} onChange={changeName} /></p>
+            <button onClick={unmount}>Unmount</button>
           </div>
         </div>
       );
     }
-            
-    ReactDOM.createRoot(
-        document.getElementById("app")
-    )
-    .render(
-        <UserData />
+             
+    root.render(
+        <UserForm />
     );
     </script>
 </body>
